@@ -3,347 +3,504 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lisa - Espace Superviseurs</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Chatbot Vocal</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-	.profile-pic {
-            width: 80px;
-            height: 80px;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #3D2B6B;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            height: 700px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #3D2B6B;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .profile-pic {
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 12px;
+            border: 3px solid #4DD9E8;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
 
-        .message-box {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            transition: opacity 0.5s ease-in-out;
-        }
-        .chat-input-container {
+        .header-text {
             display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
-        #microphoneBtn {
-            transition: transform 0.2s ease-in-out;
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
         }
-        #microphoneBtn:hover {
-            transform: scale(1.1);
+
+        .header-subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+            font-weight: 400;
         }
-        .blink {
-            animation: blinker 1s linear infinite;
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
         }
-        @keyframes blinker {
-            50% { opacity: 0; }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: fadeIn 0.3s ease;
         }
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 40px;
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+
+        .audio-attachment {
+            margin-top: 8px;
+            padding: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+
+        .audio-attachment audio {
+            width: 100%;
+            max-width: 300px;
             height: 40px;
+        }
+
+        .message.user .audio-attachment {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .message.bot .audio-attachment {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .audio-info {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #3D2B6B 0%, #5B4A8A 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #userInput:focus {
+            border-color: #4DD9E8;
+        }
+
+        button {
+            width: 50px;
+            height: 50px;
+            border: none;
             border-radius: 50%;
-            border-left-color: #1d4ed8;
-            animation: spin 1s ease infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .feature-card {
-            background-color: white;
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border: 1px solid #e5e7eb;
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .feature-icon {
-            color: #1d4ed8;
-            transition: transform 0.3s ease-in-out;
-        }
-        .feature-card:hover .feature-icon {
-            transform: scale(1.1);
-        }
-        .starter-question {
             cursor: pointer;
-            transition: color 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 20px;
         }
-        .starter-question:hover {
-            color: #1d4ed8;
-            text-decoration: underline;
+
+        #sendBtn {
+            background: #4DD9E8;
+            color: white;
+        }
+
+        #sendBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(77, 217, 232, 0.4);
+        }
+
+        #voiceBtn {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        #voiceBtn:hover {
+            background: #e0e0e0;
+        }
+
+        #voiceBtn.listening {
+            background: #EF4A6F;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        #attachBtn {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        #attachBtn:hover {
+            background: #e0e0e0;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 8px;
+            font-size: 13px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #999;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-
-    <!-- Main Container -->
-    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-7xl space-y-8">
-
-        <!-- Header -->
-        <header class="flex items-center justify-between border-b pb-4 mb-4">
-            <h1 class="text-3xl font-bold text-gray-800">Lisa - Espace Superviseurs</h1>
-        </header>
-
-        <!-- Guide d'utilisation (Partie 1) -->
-        <div class="bg-blue-50 p-6 rounded-2xl border border-blue-200">
-            <h2 class="text-xl font-semibold text-blue-800 mb-2">Lisa est là pour vous assister :</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                
-                <!-- Feature 1: Procédure Assistée -->
-                <div class="feature-card flex flex-col items-center text-center p-4">
-                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-100 mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 feature-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-base font-bold text-gray-800 mb-1">Aide à la rédaction de procédure</h3>
-                    <p class="text-gray-600 text-xs">
-                        Utilisez le micro ou le chat. Lisa propose une rédaction de procédure, identifie et assigne les tâches, et les ajoute au tableau de suivi.
-                    </p>
-                </div>
-
-                <!-- Feature 2: Gestion des tâches -->
-                <div class="feature-card flex flex-col items-center text-center p-4">
-                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-green-100 mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 feature-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-base font-bold text-gray-800 mb-1">Création, assignation, modification de tâches dans votre Excel</h3>
-                    <p class="text-gray-600 text-xs">
-                        Parlez ou écrivez directement dans le chat pour demander à Lisa de créer ou de modifier une tâche.
-                    </p>
-                </div>
-
-                <!-- Feature 3: Gestion des connaissances -->
-                <div class="feature-card flex flex-col items-center text-center p-4">
-                    <div class="w-12 h-12 flex items-center justify-center rounded-full bg-yellow-100 mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 feature-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zM7.05 15.65L5 14l1.41-1.41 1.41 1.41L10 11.41l1.41 1.41L12.41 11z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-base font-bold text-gray-800 mb-1">Gestion des connaissances</h3>
-                    <p class="text-gray-600 text-xs">
-                        Posez des questions à Lisa sur l'état des procédures existantes pour obtenir des informations précises et instantanées.
-                    </p>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <img src="image/lisa.png" alt="Lisa" class="profile-pic">
+            <div class="header-text">
+                <div class="header-title">Lisa</div>
+                <div class="header-subtitle">Assistante procédure</div>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <div class="message-content">
+                    Bonjour ! Je suis Lisa, votre assistante pour les procédures. Vous pouvez m'écrire ou utiliser le bouton microphone pour me parler.
                 </div>
             </div>
         </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column: Chat and Transaction Result -->
-            <div class="lg:col-span-2 space-y-8">
-                 <!-- Agent conversationnel Lisa (Partie 2) -->
-                <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 text-center">
-                    <div class="flex flex-col items-center">
-                        <img src="images/lisa.png" alt="Photo de Lisa" class="profile-pic">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-1">Lisa, référente procédures</h2>
-                        <h3 class="text-lg text-gray-600 mb-2">création, attribution, gestion des tâches pour l'association VISTA</h3>
-                    </div>
-
-                    <div id="speech-controls" class="mt-6">
-                        <button id="microphoneBtn" class="bg-red-500 text-white p-4 rounded-full shadow-lg hover:bg-red-600 focus:outline-none focus:ring-4 focus:ring-red-300">
-                            <!-- SVG for microphone icon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 14c2.21 0 4-1.79 4-4V4c0-2.21-1.79-4-4-4S8 1.79 8 4v6c0 2.21 1.79 4 4 4zM7 10v1c0 3.87 3.13 7 7 7s7-3.13 7-7v-1h-2v1c0 2.76-2.24 5-5 5s-5-2.24-5-5v-1H7zm5-12c1.1 0 2 0.9 2 2v6c0 1.1-.9 2-2 2s-2-.9-2-2V2c0-1.1.9-2 2-2z"/>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Chatbot Interface -->
-                    <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 flex flex-col h-72 mt-6">
-                        <div id="chatMessages" class="flex-grow overflow-y-auto space-y-4 pr-2">
-                            <div class="flex justify-start">
-                                <div class="bg-blue-100 text-blue-800 p-3 rounded-xl rounded-bl-none max-w-xs">
-                                    <p class="text-sm">Bonjour, je suis Lisa. Comment puis-je vous aider aujourd'hui ?</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-gray-200">
-                            <div class="flex flex-wrap gap-2">
-                                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs cursor-pointer hover:bg-gray-200 starter-question" data-question="Je veux initier la rédaction d'une procédure">Je veux initier la rédaction d'une procédure</span>
-                                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs cursor-pointer hover:bg-gray-200 starter-question" data-question="créer, assigner, modifier une tâche">créer, assigner, modifier une tâche</span>
-                                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs cursor-pointer hover:bg-gray-200 starter-question" data-question="Poser une question sur une procédure">Poser une question sur une procédure</span>
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-gray-200 chat-input-container">
-                            <input type="text" id="chatInput" placeholder="Écrire un message à Lisa..." class="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <input type="file" id="fileInput" class="hidden">
-                            <button id="attachFileBtn" class="bg-gray-200 text-gray-700 font-bold px-4 py-2 hover:bg-gray-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
-                                Pièce jointe
-                            </button>
-                            <button id="chatSendBtn" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-r-lg hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                Envoyer
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Résultat de la transcription (Partie 3) -->
-                <div id="transcriptionResult" class="bg-green-50 p-6 rounded-2xl shadow-lg border border-green-200 hidden">
-                    <h2 class="text-xl font-semibold text-green-800 mb-4">Formalisation de la procédure</h2>
-                    <div id="resultContent" class="space-y-4 text-sm text-green-700">
-                        <!-- Content will be dynamically generated here -->
-                    </div>
-                </div>
-
-                <!-- Tableau des procédures en cours (Partie 4) -->
-                <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 w-full hidden">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-semibold text-gray-700">Tableau des procédures en cours</h2>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
-                            <thead class="bg-gray-200">
-                                <tr>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Tâches</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Validation</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Salarié</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Avancement</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Service</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Chef de service</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Pôle</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Directeur</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Date de création tâche</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Date limite</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Dernière modification</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="proceduresTableBody" class="divide-y divide-gray-200">
-                                <!-- Procedures will be dynamically inserted here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+        <div class="chat-input-area">
+            <div class="input-wrapper">
+                <input type="text" id="userInput" placeholder="Tapez votre message..." />
+                <input type="file" id="audioFile" accept="audio/*" style="display: none;" />
+                <button id="attachBtn" title="Joindre un fichier audio">📎</button>
+                <button id="voiceBtn" title="Commande vocale">🎤</button>
+                <button id="sendBtn" title="Envoyer">➤</button>
             </div>
-
-            <!-- Right Column: Rapports & Aide -->
-            <div class="space-y-8">
-                <!-- Autres sections de la colonne de droite (existantes) -->
-                <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 hidden">
-                    <h2 class="text-2xl font-semibold text-gray-700 mb-4">Rapports & Automatisations</h2>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-gray-700">Rapport hebdomadaire des tâches</span>
-                        <input type="checkbox" id="weeklyReportToggle" checked class="form-checkbox h-5 w-5 text-blue-600 rounded-full cursor-pointer">
-                    </div>
-                    <div class="space-y-4">
-                        <div>
-                            <label for="reportEmail" class="block text-sm font-medium text-gray-700">Envoyer à (e-mail)</label>
-                            <input type="email" id="reportEmail" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" value="rapport@example.com">
-                        </div>
-                        <div>
-                            <label for="reportDay" class="block text-sm font-medium text-gray-700">Jour d'envoi</label>
-                            <select id="reportDay" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                                <option>Lundi</option>
-                                <option>Mardi</option>
-                                <option>Mercredi</option>
-                                <option>Jeudi</option>
-                                <option>Vendredi</option>
-                                <option>Samedi</option>
-                                <option>Dimanche</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="reportTime" class="block text-sm font-medium text-gray-700">Heure d'envoi</label>
-                            <input type="time" id="reportTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 hidden">
-     <h2 class="text-2xl font-semibold text-gray-700 mb-4">Exemple : Procédure "Réponse à un appel d'offres"</h2>
-    </div>
-                    <p class="text-sm text-gray-600 mb-4">Simuler l'absence d'un collaborateur pour obtenir une recommandation de réaffectation.</p>
-                    <div class="space-y-4">
-                        <select id="absenceSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="" disabled selected>Sélectionner un collaborateur absent</option>
-                        </select>
-                        <button id="recommendationBtn" class="w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                            Obtenir une recommandation
-                        </button>
-                    </div>
-                    <div id="recommendationResult" class="mt-4 p-4 text-sm bg-gray-50 rounded-lg hidden"></div>
-                    <hr class="my-6">
-                    <div>
-                        <h3 class="text-xl font-semibold text-gray-700 mb-2">Notifications d'absences (7 derniers jours)</h3>
-                        <div id="absenceNotifications" class="space-y-2 text-sm text-gray-600">
-                            <!-- Notifications will be dynamically added here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Example of a generated procedure after a voice explanation -->
-        <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 hidden">
-             <h2 class="text-2xl font-semibold text-gray-700 mb-4">Exemple : Procédure "Réponse à un appel d'offres"</h2>
-            <div id="procedureExample" class="space-y-4 text-sm text-gray-700">
-                <p>Voici une procédure structurée et les tâches associées, générées à partir d'une explication audio simulée.</p>
-                <h3 class="font-bold text-base mt-4 text-gray-800">Objet de la procédure</h3>
-                <p>La présente procédure vise à définir un cadre précis et standardisé pour la gestion et la réponse aux appels d'offres reçus par l'association VISTA, en assurant une coordination efficace entre les différents services et en optimisant le temps de réponse.</p>
-
-                <h3 class="font-bold text-base mt-4 text-gray-800">Étapes Clés</h3>
-                <ul class="list-disc list-inside space-y-2">
-                    <li>Réception et analyse de l'appel d'offres par le service concerné.</li>
-                    <li>Évaluation de la faisabilité et décision de répondre.</li>
-                    <li>Coordination et collecte des informations auprès des services (RH, Comptabilité, etc.).</li>
-                    <li>Rédaction de la proposition technique et financière.</li>
-                    <li>Validation de la proposition par la direction.</li>
-                    <li>Soumission du dossier.</li>
-                    <li>Suivi et archivage des documents.</li>
-                </ul>
-
-                <h3 class="font-bold text-base mt-4 text-gray-800">Tâches identifiées et assignées</h3>
-                <table class="min-w-full bg-gray-100 rounded-lg overflow-hidden mt-2">
-                    <thead class="bg-gray-200">
-                        <tr>
-                            <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Tâche</th>
-                            <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Responsable</th>
-                            <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Service</th>
-                            <th class="py-2 px-4 text-left text-sm font-semibold text-gray-600">Date limite</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="bg-white">
-                            <td class="py-2 px-4 text-sm text-gray-800">Analyser les besoins techniques du CCTP</td>
-                            <td class="py-2 px-4 text-sm text-gray-800">Elodie GUILLET</td>
-                            <td class="py-2 px-4 text-sm text-gray-800">Patrimoine et gestion locative</td>
-                            <td class="py-2 px-4 text-sm text-gray-800">2025-10-01</td>
-                        </tr>
-                        <tr class="bg-gray-50">
-                            <td class="py-2 px-4 text-sm text-gray-800">Recueillir les informations financières</td>
-                            <td class="py-2 px-4 text-sm text-gray-800">Christelle FERRE</td>
-                            <td class="py-2 px-4 text-sm text-gray-800">Finance-Social</td>
-                            <td class="py-2 px-4 text-sm text-gray-800">2025-10-05</td>
-                        </tr>
-                        <tr class="bg-white">
-                            <td class="py-2 px-4 text-sm text-gray-800">Valider la proposition finale</td>
-                            <td class="py-2 px-4 text-sm text-gray-800">Bérangère BRUNEVAL</td>
-                            <td class="py-2 px-4 text-sm text-gray-800">Direction</td>
-                            <td class="py-2 px-4 text-sm text-gray-800">2025-10-10</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Custom Notification Message Box -->
-        <div id="messageBox" class="message-box bg-green-500 text-white font-medium px-6 py-3 rounded-lg shadow-xl hidden">
-            <!-- Message will be dynamically inserted here -->
+            <div class="status-message" id="statusMessage"></div>
         </div>
     </div>
 
-<script src="script.js"></script>
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const attachBtn = document.getElementById('attachBtn');
+        const audioFile = document.getElementById('audioFile');
+        const statusMessage = document.getElementById('statusMessage');
+
+        let recognition = null;
+        let isListening = false;
+        let currentAudioFile = null;
+
+        // Vérifier si la reconnaissance vocale est disponible
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'fr-FR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                isListening = true;
+                voiceBtn.classList.add('listening');
+                statusMessage.textContent = '🎤 Écoute en cours...';
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+                statusMessage.textContent = '';
+                sendMessage();
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Erreur de reconnaissance vocale:', event.error);
+                statusMessage.textContent = '❌ Erreur: ' + event.error;
+                isListening = false;
+                voiceBtn.classList.remove('listening');
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                voiceBtn.classList.remove('listening');
+                if (statusMessage.textContent === '🎤 Écoute en cours...') {
+                    statusMessage.textContent = '';
+                }
+            };
+        } else {
+            voiceBtn.disabled = true;
+            voiceBtn.style.opacity = '0.5';
+            statusMessage.textContent = '⚠️ Reconnaissance vocale non disponible';
+        }
+
+        // Gestion du bouton de pièce jointe
+        attachBtn.addEventListener('click', () => {
+            audioFile.click();
+        });
+
+        audioFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                currentAudioFile = file;
+                statusMessage.textContent = `📎 Fichier sélectionné: ${file.name}`;
+                statusMessage.style.color = '#4DD9E8';
+            }
+        });
+
+        // Gestion du bouton vocal
+        voiceBtn.addEventListener('click', () => {
+            if (!recognition) return;
+
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
+
+        // Gestion de l'envoi de message
+        function sendMessage() {
+            const message = userInput.value.trim();
+            const hasAudio = currentAudioFile !== null;
+            
+            if (message === '' && !hasAudio) return;
+
+            if (hasAudio) {
+                addMessageWithAudio(message || 'Fichier audio envoyé', 'user', currentAudioFile);
+                currentAudioFile = null;
+                audioFile.value = '';
+                statusMessage.textContent = '';
+                statusMessage.style.color = '#666';
+            } else {
+                addMessage(message, 'user');
+            }
+            
+            userInput.value = '';
+
+            // Simuler une réponse du bot
+            showTypingIndicator();
+            setTimeout(() => {
+                hideTypingIndicator();
+                const response = generateResponse(message);
+                addMessage(response, 'bot');
+            }, 1000 + Math.random() * 1000);
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = text;
+            
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addMessageWithAudio(text, sender, audioFileObj) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            if (text) {
+                const textSpan = document.createElement('div');
+                textSpan.textContent = text;
+                contentDiv.appendChild(textSpan);
+            }
+            
+            const audioDiv = document.createElement('div');
+            audioDiv.className = 'audio-attachment';
+            
+            const audio = document.createElement('audio');
+            audio.controls = true;
+            audio.src = URL.createObjectURL(audioFileObj);
+            
+            const audioInfo = document.createElement('div');
+            audioInfo.className = 'audio-info';
+            audioInfo.textContent = `🎵 ${audioFileObj.name} (${formatFileSize(audioFileObj.size)})`;
+            
+            audioDiv.appendChild(audio);
+            audioDiv.appendChild(audioInfo);
+            contentDiv.appendChild(audioDiv);
+            
+            messageDiv.appendChild(contentDiv);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            
+            const indicator = document.createElement('div');
+            indicator.className = 'typing-indicator';
+            indicator.innerHTML = '<span></span><span></span><span></span>';
+            
+            typingDiv.appendChild(indicator);
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        function generateResponse(message) {
+            const responses = [
+                "C'est une question intéressante ! Je comprends ce que vous voulez dire.",
+                "Je vois. Pouvez-vous m'en dire plus à ce sujet ?",
+                "D'accord, j'ai bien noté votre message.",
+                "C'est noté ! Comment puis-je vous aider davantage ?",
+                "Merci pour cette information. Que souhaitez-vous faire ensuite ?",
+                "Intéressant ! Je suis là pour vous aider.",
+                "Je comprends votre point de vue.",
+                "Excellent ! Continuons notre conversation."
+            ];
+            
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+
+        // Event listeners
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
 </body>
 </html>
